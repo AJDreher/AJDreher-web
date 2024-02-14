@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Basic Mappa Tutorial</title>
+  <title>Basic Mappa Tutorial 2</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/p5.min.js" type="text/javascript"></script>
   <script src="https://unpkg.com/mappa-mundi/dist/mappa.js" type="text/javascript"></script>
 </head>
@@ -28,7 +28,7 @@ function setup(){
   myMap.overlay(canvas) 
 
   // Load the data
-  meteorites = loadTable('Meteorite_Landings.csv', 'csv', 'header');
+  meteorites = loadTable('introducing-leaflet/Meteorite_Landings_20230213.csv', 'csv', 'header');
 
   // Only redraw the meteorites when the map change and not every frame.
   myMap.onChange(drawMeteorites);
