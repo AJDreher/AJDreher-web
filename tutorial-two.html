@@ -28,7 +28,7 @@ function setup(){
   myMap.overlay(canvas) 
 
   // Load the data
-  meteorites = loadTable('introducing-leaflet/Meteorite_Landings_20230213.csv', 'csv', 'header');
+  meteorites = loadTable('Meteorite_Landings_20230213.csv', 'csv', 'header');
 
   // Only redraw the meteorites when the map change and not every frame.
   myMap.onChange(drawMeteorites);
