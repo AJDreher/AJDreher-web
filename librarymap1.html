@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Libraries in Vancouver, BC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+<link
+href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
+rel="stylesheet"
+/>
+<style>
+body {
+margin: 0;
+padding: 0;
+}
+ 
+#map {
+position: absolute;
+top: 0;
+bottom: 0;
+width: 100%;
+}
+
+.map-title {
+  position: absolute;
+  font-family: sans-serif;
+  margin-top: 5px;
+  margin-left: 5px;
+  padding: 10px;
+  width: 25%;
+  border: 2px solid black;
+  font-size: 14px;
+  color: #222;
+  background-color: #fff;
+  border-radius: 3px;
+}
+
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class='map-title' id='main-title'><h2>Vancouver Public Library Locations</h2>
+    <div id='map-subtitle'><p>Data provided by City of Vancouver Open Data Portal</p></div></div>
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiYWotZHJlaGVyIiwiYSI6ImNsc3V3ZzlzOTA0NzIyanBpZDZka2NrbHMifQ.8g98wZ7rlrq08msxIcST1g';
+const map = new mapboxgl.Map({
+container: 'map',
+style: 'mapbox://styles/aj-dreher/cltafpkzu00l101oih0gndw9a',
+center: [-123.13, 49.255],
+zoom: 11
+});
+ 
+map.on('click', (event) => {
+const features = map.queryRenderedFeatures(event.point, {
+layers: ['libraries']
+});
+if (!features.length) {
+return;
+}
+const feature = features[0];
+ 
+const popup = new mapboxgl.Popup({ offset: [0, -15] })
+.setLngLat(feature.geometry.coordinates)
+.setHTML(
+`<p><strong>Branch Name: </strong>${feature.properties.name}</p><p><strong>Number of Books: </strong>${feature.properties.books}</p>`
+)
+.addTo(map);
+});
+</script>
+</body>
+</html>
