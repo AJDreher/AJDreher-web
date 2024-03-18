@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+   <head>
+        <meta charset="utf-8" />
+        <title>Mapping the World, One Song at a Time</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+        <!-- Make sure you put this AFTER Leaflet's CSS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+        //tabby plugin
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="tabby-master/tabby-master/dist/css/tabby-ui.min.css">
+        <script src="tabby-master/tabby-master/dist/js/tabby.polyfills.min.js"></script>
+        <style>
+            #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+}
+
+            .legend {
+              overflow-y: scroll;
+              background-color: #ffffff;
+              border-radius: 3px;
+              bottom: 30px;
+              box-shadow: 0 1px 2px 
+              rgba(0, 0, 0, 0.1);
+              color: #000000 ;    
+              font: 14px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+              padding: 10px;
+              position: absolute;
+              right: 10px;
+              z-index: 800;
+              width: 300px;
+              height: 520px;
+              }
+            .legend h4 {
+              margin: 0 0 10px;
+              }
+            .legend div span {
+              border-radius: 50%;
+              display: inline-block;
+              height: 10px;
+              margin-right: 5px;
+              width: 10px;
+              }
+
+        </style>
+   </head>
+   
+   <body>
+    <div id="map"></div>;
+    
+    <div id="song-legend" class="legend">
+      <h4>Mapping the World, One Song at a Time</h4>
+      <p>This map came about simply because one day I was listening to the song "Olympia, WA" by the band Rancid,
+        and I started making a list of all the songs I knew of that were about, or named after, specific places.
+        I thought it would be neat to plot those locations on a map. 
+        It also made me think of some reasons why artists might write music about places.
+        The artist may be describing how spending time in a place had an impact on them.
+        They could mention the location where something important happened in the world, or in their own life.
+        They could be praising a place, or bashing it. 
+        Places seem to have character or personalities just like people, 
+        and songs are one of the best ways of expressing these personalities, from perspectives that range from the personal to the collective.
+        </br></br>So the first point of this map was to chart the world using music. But as I started putting the map together,
+        a second point to the map became clear. The songs I plotted were not evenly distributed throughout the world.
+        Most of them were clustered in the USA or Europe. Entire continents (South America, Australia, and Africa) had no song locations at all.
+        In retrospect, this is not surprising. I speak English, and mainly listen to songs written by English-speaking artists.
+        Since musicians tend to write songs about places that they have connections with, and English speakers tend
+        to live in English-speaking countries, it makes sense that most of the songs I know of are about places where English is primarily spoken.
+        This made me wonder what this map would look like if I spoke primarily Spanish, or Cantonese, or Farsi--
+        or if I lived in South Korea or Egypt or Peru.
+        </br></br>
+        <strong>Add your own songs to the map!</strong>(Unfortunately they won't be saved because I don't have a server or something like that.)
+      </p>
+
+      <div id="PlacePointButton"  style="display:none;" class="place-point-button" >
+          <p><strong>Song Title: </strong></p>
+          <span style="display:block"></span>
+          <input type="text" id="SongTitleTextEntry"/>
+          <p><strong>Artist: </strong></p>
+          <span style="display:block"></span>
+          <input type="text" id="ArtistTextEntry"/>
+          <p><strong>Link to Video (web page): </strong></p>
+          <span style="display:block"></span>
+          <input type="text" id="LinkTextEntry"/>
+          <p>Once you have filled out the fields above, click on a spot on the map to place your point there (ignore the button below)</p>
+        </div>
+        <input type="button" name="answer" value="Add a Song to the Map!" onclick="showFields()" />
+
+    
+    <script>
+        var map = L.map('map').setView([25, 40], 2.3);
+        
+        var zoom = 13
+
+        function showFields() {
+            document.getElementById('PlacePointButton').style.display = "block";
+           
+          }
+
+        var CartoDB_Positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+	        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	        subdomains: 'abcd',
+	        maxZoom: 20
+        }).addTo(map);
+        
+        // styling for markers
+        var goldIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        
+        // // this works for untabbed popups. commenting out and copying below to edit to make tabbed popups
+        // function onEachIcon(feature, layer) {
+        //    // does this POI have a property named Song Title?
+        //    let featureList = 
+        //    `<ul style="list-style-type:none;">
+        //       <li><strong>Title: </strong>${feature.properties.Song_Title}</li>
+        //       <li><strong>Artist: </strong>${feature.properties.Artist}</li>
+        //       <li><a href="${feature.properties.Link}"><strong>Listen to the Song</strong></a></li>
+        //    </ul> `
+        //    if (feature.properties && feature.properties.Link) {
+        //       layer.bindPopup(featureList);
+        //    }
+        // }
+
+        // this works for tabs, but there is a weird bug
+        // if you click on one marker it will have a tabbed popup
+        // but if you click on another marker immediately, it will not have a tabbed popup
+        // you can only get a tabbed popup to appear for the second marker if you x out the popup of the first marker
+        // I don't know why this is happening...
+        // also, need to add video "embed" links from youtube--not the page links! 
+        
+
+      // add marker on click
+      map.on("click", addNewMarker);
+
+      function addNewMarker(e) {
+        var SongEntryListener = document.getElementById("SongTitleTextEntry");
+        var noEntry = 0;
+        if (SongEntryListener.value === "") {
+          console.log(noEntry)
+        } else {
+          let TitleInput = document.getElementById("SongTitleTextEntry").value;
+          let ArtistInput = document.getElementById("ArtistTextEntry").value;
+          let LinkInput = document.getElementById("LinkTextEntry").value;
+
+          console.log(TitleInput,ArtistInput,LinkInput);
+
+          let newPopupInfo = 
+           `<ul style="list-style-type:none;">
+              <li><strong>Title: </strong>${TitleInput}</li>
+              <li><strong>Artist: </strong>${ArtistInput}</li>
+              <li><a href="${LinkInput}"><strong>Listen to the Song</strong></a></li>
+           </ul> `
+
+          var newMarker = L.marker(e.latlng).on("click", ).bindPopup(newPopupInfo).addTo(map);
+
+          document.getElementById('SongTitleTextEntry').value = "";
+          document.getElementById('ArtistTextEntry').value = "";
+          document.getElementById('LinkTextEntry').value = "";
+        };}
+      
+        // for my own data
+        function onEachIcon(feature, layer) {
+          
+          const customOptions = {
+              minWidth: "220", // set max-width
+              maxwidth: "500",
+              keepInView: true, // Set it to true if you want to prevent users from panning the popup off of the screen while it is open.
+                  };
+          
+                  function runTabs() {
+            const tabs = new Tabby("[data-tabs]");
+                  }
+
+                  const customPopup = `<div class="customPopup">
+    <ul class="tabs-example" data-tabs>
+      <li><a data-tabby-default href="#Info">Song Info</a></li>
+      <li><a href="#Video">Listen to the Song</a></li>
+    </ul>
+    <div id="Info">
+      <div><ul style="list-style-type:none;">
+              <li><strong>Title: </strong>${feature.properties.Song_Title}</li>
+              <li><strong>Artist: </strong>${feature.properties.Artist}</li>
+              <li><a href="${feature.properties.Link}"><strong>Listen to the Song</strong></a></li>
+              <li><i>Click out of this popup before clicking on another popup</i></li>
+           </ul></div>
+    </div>
+    <div id="Video">
+      <iframe width="300" height="250" src="${feature.properties.Link_Embed}" title ="Music Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+  </div>`;
+           if (feature.properties && feature.properties.Song_Title) {
+              layer.bindPopup(customPopup, customOptions)
+              .on("click", runTabs);
+           }
+        }
+      
+        $.getJSON("https://raw.githubusercontent.com/AJDreher/lab-2/main/song_points_2.geojson",
+        function(data) {
+          // Once song GeoJSON layer is loaded
+          // Then add it to the map
+          L.geoJSON(data, {
+            pointToLayer: function(feature, latlng) {
+              return L.marker(
+                latlng,
+                {icon: goldIcon}
+              );
+            },
+            onEachFeature: onEachIcon
+          }).addTo(map);
+        });
+
+      
+    </script>
+      
+   </body>
+</html>
